@@ -8,7 +8,6 @@
 </head>
 
 <body>
-    <script src="ajax.js" type="text/javascript" charset="utf-8"></script>
     <script src="lib/dynamicaudio-min.js" type="text/javascript" charset="utf-8"></script>
     <script src="source/nes.js" type="text/javascript" charset="utf-8"></script>
     <script src="source/utils.js" type="text/javascript" charset="utf-8"></script>
@@ -133,7 +132,11 @@
                         var buf8 = new Uint8ClampedArray(buf);
                         var buf32 = new Uint32Array(buf);
                         for (var y = 0; y < 64; ++y) {
-                            buf32[y] = 0xff000000 | nes.ppu.getColor(nes.ppu.getimgPalette(nes.ppu.ptTile[j].pix[y]));
+                            buf32[y] = 0xff000000 | nes.ppu.getColor(nes.ppu.getimgPalette(
+                                nes.ppu.lower2bitColorIndexFromPatternTable(
+                                    j, y & 0b111,
+                                    y >> 3
+                                )));
                         }
                         canvasImageData.data.set(buf8);
                         canvasContext.putImageData(canvasImageData, 0, 0);
@@ -150,7 +153,7 @@
                         var sprIndex = j << 2;
                         var sprY = nes.ppu.spriteMem[sprIndex];
                         var sprX = nes.ppu.spriteMem[sprIndex + 3];
-                        var sprTileIndex = nes.ppu.spriteMem[sprIndex + 1];
+                        var sprTileIndex = nes.ppu.spriteMem[sprIndex + 1]+(nes.ppu.f_spPatternTable == 0 ? 0 : 256);
                         var higher2bit = nes.ppu.spriteMem[sprIndex + 2] & 0b00000011;
                         var priority = (nes.ppu.spriteMem[sprIndex + 2] & 0b00100000) == 0;
                         var flipHorizontal = (nes.ppu.spriteMem[sprIndex + 2] & 0b01000000) != 0;
@@ -158,7 +161,7 @@
                         if (sprY >= 240) {
                             continue;
                         }
-                        var tileImageData = document.getElementById('nes-patternTable' + ((nes.ppu.f_spPatternTable == 0 ? 0 : 256) + sprTileIndex)).getContext("2d").getImageData(0, 0, 8, 8);
+                        var tileImageData = document.getElementById('nes-patternTable' + sprTileIndex).getContext("2d").getImageData(0, 0, 8, 8);
                         document.getElementById('nes-sprite' + j).getContext("2d").putImageData(
                             tileImageData,
                             0,
@@ -178,7 +181,6 @@
                             for (var x = 0; x < 8; x++) {
                                 var index = tIndex + (flipHorizontal ? -x : x);
                                 var lower2bit = nes.ppu.lower2bitColorIndexFromPatternTable(
-                                    nes.ppu.f_spriteSize == 0 ? nes.ppu.f_spPatternTable : sprTileIndex & 1,
                                     sprTileIndex, index & 0b111,
                                     index >> 3
                                 );
@@ -191,7 +193,6 @@
                                     ));
                                 if (nes.ppu.f_spriteSize) {
                                     lower2bit = nes.ppu.lower2bitColorIndexFromPatternTable(
-                                        nes.ppu.f_spriteSize == 0 ? nes.ppu.f_spPatternTable : sprTileIndex & 1,
                                         sprTileIndex + (flipVertical ? -1 : 1), index & 0b111,
                                         index >> 3
                                     );
@@ -213,15 +214,15 @@
                     dst_canvasContext.fillRect(0, 0, 256, 256);
                     for (var j = 0; j < 32; j++) {
                         for (var i = 0; i < 32; i++) {
-                            var tIndex = nes.ppu.tileIndexFromNameTable(0, j * 32 + i);
-                            var canvasImageData = document.getElementById('nes-patternTable' + ((nes.ppu.f_bgPatternTable === 0 ? 0 : 256) + tIndex)).getContext("2d").getImageData(0, 0, 8, 8);
+                            var tIndex = nes.ppu.tileIndexFromNameTable(0, j * 32 + i)+(nes.ppu.f_bgPatternTable === 0 ? 0 : 256) ;
+                            var canvasImageData = document.getElementById('nes-patternTable' + (tIndex)).getContext("2d").getImageData(0, 0, 8, 8);
                             dst_canvasContext.putImageData(canvasImageData, i * 8, j * 8);
                             var buf = new ArrayBuffer(canvasImageData.data.length);
                             var buf8 = new Uint8ClampedArray(buf);
                             var buf32 = new Uint32Array(buf);
                             var higher2bit = nes.ppu.higher2bitColorIndexFromAttributeTable(0, j * 32 + i);
                             for (var y = 0; y < 64; ++y) {
-                                var lower2bit = nes.ppu.lower2bitColorIndexFromPatternTable(nes.ppu.f_bgPatternTable, tIndex, y & 0b111, y >> 3);
+                                var lower2bit = nes.ppu.lower2bitColorIndexFromPatternTable(tIndex, y & 0b111, y >> 3);
                                 buf32[y] = 0xff000000 | nes.ppu.getColor(
                                     nes.ppu.getimgPalette(
                                         lower2bit != 0 ?

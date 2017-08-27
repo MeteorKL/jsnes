@@ -288,8 +288,8 @@ JSNES.PPU.prototype = {
         return this.vramMem[0x3f10 + i] & 0b11111111;
     },
 
-    lower2bitColorIndexFromPatternTable: function (PatternTable, tIndex, x, y) {
-        var vramIndex = PatternTable*0x1000 + tIndex * 8 * 2 + y;
+    lower2bitColorIndexFromPatternTable: function (tIndex, x, y) {
+        var vramIndex = tIndex * 8 * 2 + y;
         // console.log(vramIndex)
         var bitOffset = 7 - x;
         return ((this.vramMem[vramIndex] >> bitOffset) & 1) |

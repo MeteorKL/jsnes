@@ -2,6 +2,7 @@ JSNES
 =====
 
 A JavaScript NES emulator.
+![](example.png)
 
 **Note:** Current future work is happening is this branch: https://github.com/bfirsh/jsnes/tree/split-out-ui
 

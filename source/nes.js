@@ -17,19 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 var JSNES = function(opts) {
-    this.opts = {
-        ui: JSNES.DummyUI,
-        swfPath: 'lib/',
-        
-        preferredFrameRate: 60,
-        fpsInterval: 500, // Time between updating FPS in ms
-        showDisplay: true,
-
-        emulateSound: true,
+    this.const = {
         sampleRate: 44100, // Sound sample rate in hz
-        
         CPU_FREQ_NTSC: 1789772.5, //1789772.72727272d;
         CPU_FREQ_PAL: 1773447.4
+    }
+    this.opts = {
+        onEndFrame: function () {},
+        canvas_id: "",
+        showDisplay: true,
+        emulateSound: true,
+        frameRate: 60,
+        fpsInterval: 500, // Time between updating FPS in ms
     };
     if (typeof opts != 'undefined') {
         var key;
@@ -40,9 +39,9 @@ var JSNES = function(opts) {
         }
     }
     
-    this.frameTime = 1000 / this.opts.preferredFrameRate;
+    this.frameTime = 1000 / this.opts.frameRate;
     
-    this.ui = new this.opts.ui(this);
+    this.ui = new JSNES.UI(this, this.opts.canvas_id);
     this.cpu = new JSNES.CPU(this);
     this.ppu = new JSNES.PPU(this);
     this.papu = new JSNES.PAPU(this);
@@ -52,11 +51,10 @@ var JSNES = function(opts) {
     this.ui.updateStatus("Ready to load a ROM.");
 };
 
-JSNES.VERSION = "<%= version %>";
-
 JSNES.prototype = {
     isRunning: false,
     fpsFrameCount: 0,
+    frameCount: 0,
     romData: null,
     
     // Resets the system
@@ -79,6 +77,7 @@ JSNES.prototype = {
                 
                 this.frameInterval = setInterval(function() {
                     self.frame();
+                    self.opts.onEndFrame(self);
                 }, this.frameTime);
                 this.resetFps();
                 this.printFps();
@@ -150,6 +149,7 @@ JSNES.prototype = {
             }
         }
         this.fpsFrameCount++;
+        this.frameCount++;
     },
     
     printFps: function() {
@@ -214,9 +214,9 @@ JSNES.prototype = {
     },
     
     setFramerate: function(rate){
-        this.opts.preferredFrameRate = rate;
+        this.opts.frameRate = rate;
         this.frameTime = 1000 / rate;
-        this.papu.setSampleRate(this.opts.sampleRate, false);
+        this.papu.setSampleRate(this.const.sampleRate, false);
     },
     
     toJSON: function() {

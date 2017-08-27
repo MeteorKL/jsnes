@@ -118,15 +118,15 @@ JSNES.PAPU = function(nes) {
 
 JSNES.PAPU.prototype = {
     reset: function() {
-        this.sampleRate = this.nes.opts.sampleRate;
+        this.sampleRate = this.nes.const.sampleRate;
         this.sampleTimerMax = Math.floor(
-            (1024.0 * this.nes.opts.CPU_FREQ_NTSC *
-                this.nes.opts.preferredFrameRate) / 
+            (1024.0 * this.nes.const.CPU_FREQ_NTSC *
+                this.nes.opts.frameRate) / 
                 (this.sampleRate * 60.0)
         );
     
         this.frameTime = Math.floor(
-            (14915.0 * this.nes.opts.preferredFrameRate) / 60.0
+            (14915.0 * this.nes.const.frameRate) / 60.0
         );
 
         this.sampleTimer = 0;

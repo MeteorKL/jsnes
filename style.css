@@ -1,0 +1,40 @@
+.nes-Palette {
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+    margin: 1px;
+}
+.nes-Palette-line {
+    height: 16px;
+    margin: 1px;
+}
+.nes-screen {
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+#controls {
+    position: fixed;
+    right: 0;
+    top: 240px;
+}
+.nes-patternTable-line {
+    height: 8px;
+    margin: 1px;
+}
+.nes-patternTable {
+    height: 8px;
+    width: 8px;
+    display: inline-block;
+    margin: 1px;
+}
+.nes-sprite-line {
+    height: 8px;
+    margin: 1px;
+}
+.nes-sprite {
+    height: 8px;
+    width: 8px;
+    display: inline-block;
+    margin: 1px;
+}
